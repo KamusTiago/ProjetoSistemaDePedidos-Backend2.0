@@ -22,6 +22,10 @@ import com.kamustiago.kamus.domain.Categoria;
 import com.kamustiago.kamus.dto.CategoriaDTO;
 import com.kamustiago.kamus.services.CategoriaService;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @RequestMapping(value = "/categorias")
 public class CategoriaResource {
@@ -30,12 +34,15 @@ public class CategoriaResource {
 	@Autowired
 	public CategoriaService service;
 
+	//anotacao para customizar endpoints no Swagger
+	@ApiOperation(value="Busca por id")
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<Categoria> find(@PathVariable Integer id) {
 		Categoria obj = service.find(id);
 		return ResponseEntity.ok(obj);
 	}
 
+	@ApiOperation(value="Insere categoria")
 	//pre autorizacao para perfil adm
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	// Metodo que vai pegar a url para inserir
@@ -47,6 +54,7 @@ public class CategoriaResource {
 		return ResponseEntity.created(uri).build();
 	}
 
+	@ApiOperation(value="Atualiza categoria")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	// metodo para atualizar uma categoria
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
@@ -57,6 +65,10 @@ public class CategoriaResource {
 		return ResponseEntity.noContent().build();
 	}
 
+	@ApiResponses(value = {
+			@ApiResponse(code = 400, message = "Não é possível excluir uma categoria que possui produtos"),
+			@ApiResponse(code = 404, message = "Código inexistente") })
+	@ApiOperation(value="Deleta categoria")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	// metodo para deletar uma categoria
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -66,6 +78,7 @@ public class CategoriaResource {
 
 	}
 
+	@ApiOperation(value="Retorna todas categorias")
 	//metodo para mostrar todas categorias convertendo lista de categoria em categoria dto
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<List<CategoriaDTO>> findAll() {
@@ -74,6 +87,7 @@ public class CategoriaResource {
 		return ResponseEntity.ok().body(listDto);
 	}
 	
+	@ApiOperation(value="Retorna todas categorias com paginação")
 	@RequestMapping(value =  "/page", method = RequestMethod.GET)
 	public ResponseEntity<Page<CategoriaDTO>> findPage(
 			@RequestParam(value = "page", defaultValue = "0")Integer page, 
